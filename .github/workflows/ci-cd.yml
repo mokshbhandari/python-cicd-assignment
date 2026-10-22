@@ -1,0 +1,46 @@
+
+name: Python CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t python-cicd-app .
+
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image for testing
+        run: docker build -t python-cicd-app .
+
+      - name: Run application tests
+        run: docker run --rm python-cicd-app python -m unittest -v test_app.py
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image for deployment
+        run: docker build -t python-cicd-app .
+
+      - name: Run deployed application
+        run: docker run --rm python-cicd-app
